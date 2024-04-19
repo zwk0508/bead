@@ -1,0 +1,52 @@
+unit {
+    magic_number
+    string_array[]
+    value_array[]
+    variable[]
+    function[]
+}
+
+magic_number = 0XBEADAA
+
+string_array{
+    count  2
+    array[] {
+        length 2
+        string_bytes
+    }
+}
+value_array{
+    count 2
+    array[] {
+        type 1 (0 false 1 true 2 Integer 3 Float 4 String 5 none)
+        if type == 2            Integer 4
+        if type == 3            Float   8
+        if type = 4             string_array_index 2
+    }
+}
+variable {
+    count 2
+    variable_declare[] {
+        name_string_array_index 2
+        value_array_index 2
+    }
+}
+
+function{
+    name_string_array_index 2
+    code[]
+}
+
+code
+opcode  format             params
+0       noop
+1       get_variable       name_string_array_index
+2       set_variable       name_string_array_index
+3       load               variable_table_index
+4       store              variable_table_index
+5       call               function_name_string_array_index          parameter_count
+6       if_0               instruction_offset
+7       goto               instruction_offset
+8       const              value_array_index
+9       pop
+10      return

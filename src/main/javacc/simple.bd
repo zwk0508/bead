@@ -1,0 +1,56 @@
+import model.user as user
+import model.dep as dep
+
+var a = 10
+var a = 10.1
+var b = a
+var b = a+1
+var b = 10+1
+var c = date()
+var d = [1,date(),a,v,'asdf',true,false,[1,3],{a:18,b:'xdg'},func(a,b){print(a,b)}]
+var d = {a:[1,2,3,{x:'zsdf'}],b:99}
+var d = func(a,b){print(a,b)}
+
+print(d[1],d[a],d['a'],d[7][1],d[8].a,d[9]())
+
+func funName(a,b){
+    for (i in 10){
+        print(i)
+    }
+    return 1,true,'asdf',func(a,b){print(a,b)},a=>c
+}
+if (a> b){
+    print(a)
+}
+if (a> year() || c < fun(){return 1}()){
+    print(a)
+}
+if (a> year()+1 || c< 1+3+a && e>'f'){
+    print(a)
+}
+
+if ((a> b || c< d) && e>f){
+    print(a)
+}
+a = 10
+
+a,b,c = 10,11
+
+a = c if a>10 else d
+
+lambdaCall(()=>print(x))
+
+func funName(){
+    if (true){
+        print(true)
+    }
+    for(i in 100){
+        if (i < 90){
+            continue
+        }
+        if (i > 90){
+            break
+        }
+    }
+}
+

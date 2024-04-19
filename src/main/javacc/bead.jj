@@ -1,0 +1,441 @@
+options {
+    STATIC = false;
+    JAVA_UNICODE_ESCAPE = true;
+    UNICODE_INPUT = true;
+    IGNORE_CASE = false;
+    OUTPUT_DIRECTORY="D:/workspace/bead/src/main/java/com/zwk/parser";
+}
+
+PARSER_BEGIN(BeadParser)
+
+package com.zwk.parser;
+
+import com.zwk.node.*;
+
+public class BeadParser {
+
+}
+PARSER_END(BeadParser)
+
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+ < BREAK: "break" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < ELSE: "else" >
+| < FALSE: "false" >
+| < FOR: "for" >
+| < IF: "if" >
+| < IMPORT: "import" >
+| < NULL: "null" >
+| < RETURN: "return" >
+| < TRUE: "true" >
+| < VAR: "var" >
+| < FUNC: "func" >
+| < AND: "and" >
+| < OR: "or" >
+| < AS: "as" >
+| < DEFER: "defer" >
+| < IN: "in" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < STRING_LITERAL:
+      "'"
+      (   (~["\'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'"]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "'"
+  >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER:
+      [
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+TOKEN : /* SEPARATORS */
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < COMMA: "," >
+| < SEMICOLON: ";" >
+| < DOT: "." >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < ASSIGN: "=" >
+| < GT: ">" >
+| < LT: "<" >
+| < BANG: "!" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < RSHIFT: ">>" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSHIFTASSIGN: ">>=" >
+| < ARROW: "=>" >
+}
+
+Node root():{
+    RootNode rootNode = new RootNode();
+    Node v ;
+}{
+//    (imports())*
+    (
+    v = var() {rootNode.inits.add(v);}
+    | LOOKAHEAD(2) v = assign() {rootNode.inits.add(v);}
+//    | LOOKAHEAD(2) attributeAssign()
+//    | LOOKAHEAD(2) func()
+    | v = funcCall() {rootNode.inits.add(v);}
+//    | anonymousFuncCall()
+//    | ifStatement()
+//    | forStatement()
+    )*
+    {return rootNode;}
+}
+
+Node imports():{}{
+    <IMPORT> <IDENTIFIER> (<DOT> <IDENTIFIER> )* (<AS> <IDENTIFIER> )?
+    {return null;}
+}
+
+Node var():{
+    VarNode varNode = new VarNode();
+    Token t;
+    Node v;
+}{
+    <VAR> t = <IDENTIFIER> {varNode.name = t.image;} (<ASSIGN> v =value() {varNode.value = v;})?
+    {return varNode;}
+}
+
+Node assign():{
+    AssignNode assignNode = new AssignNode();
+    Token t ;
+    Token operator;
+    Node v;
+}{
+   t = <IDENTIFIER>{assignNode.name = t.image;}
+   (
+        operator = <ASSIGN> | operator = <PLUSASSIGN> | operator = <MINUSASSIGN> | operator = <STARASSIGN>
+        | operator = <SLASHASSIGN> | operator = <ANDASSIGN> | operator = <ORASSIGN> | operator = <XORASSIGN>
+        | operator = <REMASSIGN> | operator = <LSHIFTASSIGN> |operator = <RSHIFTASSIGN>
+    ){assignNode.operator = operator.image;}
+    v = value(){assignNode.value =v;}
+
+    {return assignNode;}
+}
+
+Node attributeAssign():{}{
+   attribute()
+    (
+        <ASSIGN> | <PLUSASSIGN> |<MINUSASSIGN> |<STARASSIGN>
+        |<SLASHASSIGN> |<ANDASSIGN> |<ORASSIGN> |<XORASSIGN>
+        | <REMASSIGN> | <LSHIFTASSIGN> |<RSHIFTASSIGN>
+    )
+    value()
+    {return null;}
+}
+
+Node func():{}{
+    <FUNC> <IDENTIFIER> <LPAREN> (<IDENTIFIER> (<COMMA> <IDENTIFIER>)*)?<RPAREN> <LBRACE>( statement() )* <RBRACE>
+    {return null;}
+}
+
+
+Node value():{
+    Node ret;
+    Token t;
+}{
+   ( LOOKAHEAD(2) t = <IDENTIFIER>{IdNode idNode = new IdNode();idNode.id = t.image;ret = idNode;}
+   | LOOKAHEAD(2) ret = literalValue()
+   | LOOKAHEAD(2) ret = logicValue()
+   | LOOKAHEAD(2) ret = arithmeticValue()
+   | LOOKAHEAD(2) ret = ifValue()
+   | LOOKAHEAD(2) ret = anonymousFunc()
+   | LOOKAHEAD(2) ret = funcCall()
+   | ret = anonymousFuncCall()
+   | LOOKAHEAD(2) ret = lambda()
+   | ret = array()
+   | ret = map()
+   | LOOKAHEAD(2) ret = attribute()
+   )
+   {return ret;}
+
+
+}
+
+Node array():{}{
+    <LBRACKET> (value() (<COMMA> value())* )? <RBRACKET>
+    {return null;}
+}
+
+Node map():{}{
+    <LBRACE> ( <IDENTIFIER> <COLON> value() (<COMMA> <IDENTIFIER> <COLON> value()) *)? <RBRACE>
+    {return null;}
+}
+
+Node attribute():{}{
+    <IDENTIFIER> (attributeValue())+
+    {return null;}
+}
+
+Node attributeValue():{}{
+    <DOT> <IDENTIFIER>
+    | <LBRACKET> (LOOKAHEAD(2) <IDENTIFIER> | <STRING_LITERAL> |<INTEGER_LITERAL> | attribute() )<RBRACKET>
+    {return null;}
+}
+
+
+Node literalValue():{
+    Node ret;
+    Token t;
+}{
+    t = <TRUE> { BooleanLiteralValueNode valueNode = new BooleanLiteralValueNode();valueNode.value = true;ret = valueNode; return ret;}
+    | t = <FALSE> { BooleanLiteralValueNode valueNode = new BooleanLiteralValueNode();valueNode.value = false;ret = valueNode; return ret;}
+    | t = <FLOATING_POINT_LITERAL>{FloatLiteralValueNode valueNode = new FloatLiteralValueNode();valueNode.value= Double.parseDouble(t.image);ret = valueNode; return ret;}
+    | t = <INTEGER_LITERAL>{IntegerLiteralValueNode valueNode = new IntegerLiteralValueNode();valueNode.value = valueNode.parseInt(t.image);ret = valueNode; return ret;}
+    | t = <STRING_LITERAL>{StringLiteralValueNode valueNode = new StringLiteralValueNode();valueNode.value = valueNode.parseString(t.image);ret = valueNode; return ret;}
+
+}
+
+Node logicValue():{}{
+    priorityLogicValue() ((<SC_OR> | <OR> )priorityLogicValue())*
+    {return null;}
+}
+Node priorityLogicValue():{}{
+    priorityBaseLogicValue() ((<SC_AND> | <AND> ) priorityBaseLogicValue())*
+    {return null;}
+}
+Node priorityBaseLogicValue():{}{
+    comparisonValue() | <LBRACE> logicValue() <RBRACE>
+    {return null;}
+}
+
+Node comparisonValue():{}{
+    comparisonExpression() ( <GE>|<GT>|<LE>|<LT>|<EQ>|<NE> ) comparisonExpression()
+    {return null;}
+}
+
+Node comparisonExpression():{}{
+      LOOKAHEAD(2) <IDENTIFIER>
+    | LOOKAHEAD(2) literalValue()
+    | LOOKAHEAD(2) arithmeticValue()
+    | funcCall()
+    | anonymousFuncCall()
+    {return null;}
+}
+
+Node calcExpression():{}{
+      LOOKAHEAD(2) <IDENTIFIER>
+    | literalValue()
+    | funcCall()
+    | anonymousFuncCall()
+    {return null;}
+}
+
+Node arithmeticValue():{}{
+    priorityArithmeticValue() ((<PLUS> |<MINUS> ) priorityArithmeticValue())*
+    {return null;}
+}
+Node priorityArithmeticValue():{}{
+    priorityBaseArithmeticValue() ((<STAR> |<SLASH> |<REM> |<BIT_AND>|<BIT_OR> |<XOR> |<LSHIFT> |<RSHIFT> ) priorityBaseArithmeticValue())*
+    {return null;}
+}
+Node priorityBaseArithmeticValue():{}{
+    calcExpression() | <LPAREN>  arithmeticValue() <RPAREN>
+    {return null;}
+}
+Node ifValue():{}{
+    (<IDENTIFIER> | literalValue() ) <IF> logicValue() <ELSE> arithmeticValue()
+    {return null;}
+}
+
+Node funcCall():{
+    FuncCallNode funcCallNode = new FuncCallNode();
+    Node v;
+    Token t;
+}{
+    (LOOKAHEAD(2) t = <IDENTIFIER>{IdNode idNode = new IdNode();idNode.id = t.image;funcCallNode.func = idNode;} | attribute() ) <LPAREN>(v =value(){funcCallNode.params.add(v);} (<COMMA> v = value() {funcCallNode.params.add(v);} )*)? <RPAREN>
+    {return funcCallNode;}
+}
+
+Node anonymousFunc():{}{
+    <FUNC> <LPAREN> (<IDENTIFIER> (<COMMA> <IDENTIFIER> )*)? <RPAREN> <LBRACE> (statement() )*<RBRACE>
+    {return null;}
+}
+Node anonymousFuncCall():{}{
+    anonymousFunc() <LPAREN> (value() (<COMMA> value() )*)?  <RPAREN>
+    {return null;}
+}
+
+Node lambda():{}{
+    ( <IDENTIFIER> (<COMMA> <IDENTIFIER> )* | <LPAREN> <RPAREN>)  <ARROW> lambdaBody()
+    {return null;}
+}
+
+Node lambdaBody():{}{
+   LOOKAHEAD(2) value() | blockStatement()
+   {return null;}
+}
+
+Node statement():{}{
+      var()
+    | LOOKAHEAD(2) assign()
+    | LOOKAHEAD(2) funcCall()
+    | anonymousFuncCall()
+    | ifStatement()
+    | forStatement()
+    | returnStatement()
+    | blockStatement()
+    | deferCall()
+    | <BREAK>
+    | <CONTINUE>
+    {return null;}
+}
+
+Node blockStatement():{}{
+    <LBRACE> ( statement() )* <RBRACE>
+    {return null;}
+}
+
+Node deferCall():{}{
+    <DEFER> (funcCall() | anonymousFuncCall())
+    {return null;}
+}
+
+Node ifStatement():{}{
+    <IF> <LPAREN> value() <RPAREN> <LBRACE> (statement())* <RBRACE>
+    ( <ELSE> (ifStatement() | <LBRACE> ( statement() )* <RBRACE> ))?
+    {return null;}
+}
+
+Node forStatement():{}{
+    <FOR> <LPAREN> <IDENTIFIER> (<COMMA> <IDENTIFIER> )? <IN> collectionValue() <RPAREN>
+    <LBRACE> ( statement() )*<RBRACE>
+    {return null;}
+}
+
+Node collectionValue():{}{
+      LOOKAHEAD(2) <IDENTIFIER>
+    | LOOKAHEAD(2) funcCall()
+    | anonymousFuncCall()
+    | LOOKAHEAD(2) ifValue()
+    | <INTEGER_LITERAL>
+    {return null;}
+}
+
+Node returnStatement():{}{
+   <RETURN> ( LOOKAHEAD(2) value())?
+   {return null;}
+}
+
+

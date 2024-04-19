@@ -1,0 +1,126 @@
+root:   imports*
+        (
+            var | assign | func | funcCall
+            | anonymousFuncCall | ifStatement
+            | forStatement
+        )*
+        returnStatement?
+
+
+imports: import id ( . id)* (as id)?
+
+var: var a(,b)*
+    | var a(,b)* = value (, value)*
+
+assign: a(,b)*
+        (
+            = | += | -= | *= | /= | &= | |= | ^= | %= | <<= | >>=
+        )
+        value (, value)*
+
+func: func id '(' (id (,id)*)? ')' '{' statement* '}'
+
+value:
+      id
+    | literalValue
+    | logicValue
+    | arithmeticValue
+    | ifValue
+    | anonymousFunc
+    | funcCall
+    | anonymousFuncCall
+    | lambda
+    | array
+    | map
+    | attribute
+
+array: '[' (value (,value)*)? ']'
+
+map: '{' (id : value (,id : value)*)? '}'
+
+attribute:
+         id attributeValue+
+
+attributeValue:
+          . id
+        | '[' ( id | string | integer | attribute) ']'
+
+
+literalValue:
+      true
+    | false
+    | float
+    | integer
+    | string
+
+logicValue:  priorityLogicValue (|| priorityLogicValue)*
+
+priorityLogicValue: priorityBaseLogicValue (&& priorityBaseLogicValue)*
+
+priorityBaseLogicValue: comparisonValue | '(' logicValue ')'
+
+comparisonValue:
+    comparisonExpression ( > | >= | < | <= | == | != ) comparisonExpression
+
+comparisonExpression:
+      id
+    | literalValue
+    | arithmeticValue
+    | funcCall
+    | anonymousFuncCall
+
+calcExpression:
+      id
+    | literalValue
+    | funcCall
+    | anonymousFuncCall
+
+arithmeticValue:  priorityArithmeticValue ((+|-) priorityArithmeticValue)*
+priorityArithmeticValue: priorityBaseArithmeticValue
+                        ((* | / | % | & | '|' | ^ | << | >> ) priorityBaseArithmeticValue)*
+priorityBaseArithmeticValue:
+    calcExpression | '(' arithmeticValue ')'
+
+ifValue:  (id | literalValue) if logicValue else arithmeticValue
+
+funcCall:  (id | attribute) '(' (value (, value)*)? ')'
+
+anonymousFunc: func'(' (id (, id)*)? ')' '{ 'statement* '}'
+
+anonymousFuncCall: anonymousFunc '(' (value (, value)*)? ')'
+
+lambda: (id (, id)* |'(' ')') => lambdaBody
+
+lambdaBody: value | blockStatement
+
+statement:
+          var
+        | assign
+        | funcCall
+        | anonymousFuncCall
+        | ifStatement
+        | forStatement
+        | returnStatement
+        | blockStatement
+        | deferCall
+        | break
+        | continue
+
+blockStatement: '{' statement* '}'
+
+deferCall: defer funcCall | anonymousFuncCall
+
+ifStatement: if'(' value ')' '{' statement* '}' ((else ifStatement)* else '{' statement* '}')?
+
+forStatement: for'('id in collectionValue ')' '{' statement* '}'
+
+collectionValue:
+          id
+        | funcCall
+        | anonymousFuncCall
+        | ifValue
+
+returnStatement: return value (, value)*
+
+
+
