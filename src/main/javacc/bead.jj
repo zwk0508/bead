@@ -189,12 +189,12 @@ Node root():{
     RootNode rootNode = new RootNode();
     Node v ;
 }{
-//    (imports())*
+    (imports())*
     (
     v = var() {rootNode.inits.add(v);}
     | LOOKAHEAD(2) v = assign() {rootNode.inits.add(v);}
-//    | LOOKAHEAD(2) attributeAssign()
-//    | LOOKAHEAD(2) func()
+    | LOOKAHEAD(2) attributeAssign()
+    | LOOKAHEAD(2) func()
     | v = funcCall() {rootNode.inits.add(v);}
 //    | anonymousFuncCall()
 //    | ifStatement()
@@ -260,9 +260,9 @@ Node value():{
    | LOOKAHEAD(2) ret = logicValue()
    | LOOKAHEAD(2) ret = arithmeticValue()
    | LOOKAHEAD(2) ret = ifValue()
-   | LOOKAHEAD(2) ret = anonymousFunc()
+//   | LOOKAHEAD(2) ret = anonymousFunc()
    | LOOKAHEAD(2) ret = funcCall()
-   | ret = anonymousFuncCall()
+//   | ret = anonymousFuncCall()
    | LOOKAHEAD(2) ret = lambda()
    | ret = array()
    | ret = map()
@@ -330,7 +330,7 @@ Node comparisonExpression():{}{
     | LOOKAHEAD(2) literalValue()
     | LOOKAHEAD(2) arithmeticValue()
     | funcCall()
-    | anonymousFuncCall()
+//    | anonymousFuncCall()
     {return null;}
 }
 
@@ -338,7 +338,7 @@ Node calcExpression():{}{
       LOOKAHEAD(2) <IDENTIFIER>
     | literalValue()
     | funcCall()
-    | anonymousFuncCall()
+//    | anonymousFuncCall()
     {return null;}
 }
 
@@ -368,14 +368,14 @@ Node funcCall():{
     {return funcCallNode;}
 }
 
-Node anonymousFunc():{}{
-    <FUNC> <LPAREN> (<IDENTIFIER> (<COMMA> <IDENTIFIER> )*)? <RPAREN> <LBRACE> (statement() )*<RBRACE>
-    {return null;}
-}
-Node anonymousFuncCall():{}{
-    anonymousFunc() <LPAREN> (value() (<COMMA> value() )*)?  <RPAREN>
-    {return null;}
-}
+//Node anonymousFunc():{}{
+//    <FUNC> <LPAREN> (<IDENTIFIER> (<COMMA> <IDENTIFIER> )*)? <RPAREN> <LBRACE> (statement() )*<RBRACE>
+//    {return null;}
+//}
+//Node anonymousFuncCall():{}{
+//    anonymousFunc() <LPAREN> (value() (<COMMA> value() )*)?  <RPAREN>
+//    {return null;}
+//}
 
 Node lambda():{}{
     ( <IDENTIFIER> (<COMMA> <IDENTIFIER> )* | <LPAREN> <RPAREN>)  <ARROW> lambdaBody()
@@ -391,12 +391,12 @@ Node statement():{}{
       var()
     | LOOKAHEAD(2) assign()
     | LOOKAHEAD(2) funcCall()
-    | anonymousFuncCall()
+//    | anonymousFuncCall()
     | ifStatement()
     | forStatement()
     | returnStatement()
     | blockStatement()
-    | deferCall()
+//    | deferCall()
     | <BREAK>
     | <CONTINUE>
     {return null;}
@@ -407,10 +407,10 @@ Node blockStatement():{}{
     {return null;}
 }
 
-Node deferCall():{}{
-    <DEFER> (funcCall() | anonymousFuncCall())
-    {return null;}
-}
+//Node deferCall():{}{
+//    <DEFER> (funcCall() | anonymousFuncCall())
+//    {return null;}
+//}
 
 Node ifStatement():{}{
     <IF> <LPAREN> value() <RPAREN> <LBRACE> (statement())* <RBRACE>
@@ -427,7 +427,7 @@ Node forStatement():{}{
 Node collectionValue():{}{
       LOOKAHEAD(2) <IDENTIFIER>
     | LOOKAHEAD(2) funcCall()
-    | anonymousFuncCall()
+//    | anonymousFuncCall()
     | LOOKAHEAD(2) ifValue()
     | <INTEGER_LITERAL>
     {return null;}

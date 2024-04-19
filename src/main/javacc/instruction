@@ -1,6 +1,7 @@
 unit {
     magic_number
     string_array[]
+    import_array[]
     value_array[]
     variable[]
     function[]
@@ -15,6 +16,14 @@ string_array{
         string_bytes
     }
 }
+
+import_array{
+    count 2
+    index[]{
+        string_array_index
+    }
+}
+
 value_array{
     count 2
     array[] {
